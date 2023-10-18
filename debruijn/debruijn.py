@@ -81,7 +81,11 @@ def read_fastq(fastq_file):
     :param fastq_file: (str) Path to the fastq file.
     :return: A generator object that iterate the read sequences. 
     """
-    pass
+    file = open(fastq_file, "r")
+    for line in file :
+        yield next(file).strip()
+        next(file)
+        next(file)
 
 
 def cut_kmer(read, kmer_size):
@@ -90,7 +94,8 @@ def cut_kmer(read, kmer_size):
     :param read: (str) Sequence of a read.
     :return: A generator object that iterate the kmers of of size kmer_size.
     """
-    pass
+    for i in range(len(read)-(kmer_size-1)) : 
+        yield read[i:i+kmer_size]
 
 
 def build_kmer_dict(fastq_file, kmer_size):
@@ -99,8 +104,14 @@ def build_kmer_dict(fastq_file, kmer_size):
     :param fastq_file: (str) Path to the fastq file.
     :return: A dictionnary object that identify all kmer occurrences.
     """
-    pass
-
+    frequence_kmer = {}
+    for sequence in read_fastq(fastq_file): 
+        for kmer in cut_kmer(sequence, kmer_size) :
+            if kmer not in frequence_kmer :
+                frequence_kmer[kmer]=1
+            else :
+                frequence_kmer[kmer]+=1
+    return frequence_kmer
 
 def build_graph(kmer_dict):
     """Build the debruijn graph
@@ -108,7 +119,13 @@ def build_graph(kmer_dict):
     :param kmer_dict: A dictionnary object that identify all kmer occurrences.
     :return: A directed graph (nx) of all kmer substring and weight (occurrence).
     """
-    pass
+    graphe = nx.DiGraph()
+    for kmer in kmer_dict.keys():
+        prefixe = kmer[0:-1]
+        suffixe = kmer[1::]
+        graphe.add_edge(prefixe, suffixe, weight= kmer_dict[kmer])
+    
+    return graphe
 
 
 def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):
@@ -187,7 +204,11 @@ def get_starting_nodes(graph):
     :param graph: (nx.DiGraph) A directed graph object
     :return: (list) A list of all nodes without predecessors
     """
-    pass
+    list_nodes = []
+    for node in graph.nodes():
+        if len(list(graph.predecessors(node))) == 0:
+            list_nodes.append(node)
+    return(list_nodes)
 
 def get_sink_nodes(graph):
     """Get nodes without successors
@@ -195,7 +216,11 @@ def get_sink_nodes(graph):
     :param graph: (nx.DiGraph) A directed graph object
     :return: (list) A list of all nodes without successors
     """
-    pass
+    list_nodes = []
+    for node in graph.nodes():
+        if len(list(graph.successors(node))) == 0:
+            list_nodes.append(node)
+    return(list_nodes)
 
 def get_contigs(graph, starting_nodes, ending_nodes):
     """Extract the contigs from the graph
@@ -205,16 +230,28 @@ def get_contigs(graph, starting_nodes, ending_nodes):
     :param ending_nodes: (list) A list of nodes without successors
     :return: (list) List of [contiguous sequence and their length]
     """
-    pass
+    contig_len = []
+    for starts_node in starting_nodes:
+        for ending_node in ending_nodes:
+            chemins = nx.all_simple_paths(graph, starts_node, ending_node)
+            for chemin in chemins: # ["AT","TC","CT","TT"] -> ATCTT
+                contig = chemin[0]
+                for sequence in chemin[1:]:
+                    contig += sequence[1]
+                contig_len.append((contig, len(contig)))
+    return contig_len
 
+    
 def save_contigs(contigs_list, output_file):
     """Write all contigs in fasta format
 
     :param contig_list: (list) List of [contiguous sequence and their length]
     :param output_file: (str) Path to the output file
     """
+    #file = open(output_file, "w")
+   # for i in contigs_list:
+#        file.write(textwrap.fill(f">contig_{i} len = {contigs_list[1]}\n{contigs_list[0]}", width=80))
     pass
-
 
 def draw_graph(graph, graphimg_file): # pragma: no cover
     """Draw the graph
@@ -248,6 +285,21 @@ def main(): # pragma: no cover
     """
     # Get arguments
     args = get_arguments()
+    file = args.fastq_file
+    kmer = args.kmer_size
+
+    #for sequence in read_fastq(file):
+    #    print(sequence) #1
+        
+    #for kmer in cut_kmer("ATCTCGATA", kmer):
+    #    print(kmer) #2
+
+    #for i in build_kmer_dict(file, kmer).items():
+       # print(i) #3
+    
+    #print(build_graph(build_kmer_dict(file, kmer))) #4
+
+    print(get_starting_nodes(build_graph(build_kmer_dict(file, kmer)))) #4
 
     # Fonctions de dessin du graphe
     # A decommenter si vous souhaitez visualiser un petit 
