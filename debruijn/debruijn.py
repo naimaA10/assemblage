@@ -27,13 +27,13 @@ import textwrap
 import matplotlib.pyplot as plt
 matplotlib.use("Agg")
 
-__author__ = "Your Name"
+__author__ = "AMMICHE Naïma"
 __copyright__ = "Universite Paris Diderot"
-__credits__ = ["Your Name"]
+__credits__ = ["AMMICHE Naïma"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Your Name"
-__email__ = "your@email.fr"
+__maintainer__ = "AMMICHE Naïma"
+__email__ = "naima.ammiche@gmail.com"
 __status__ = "Developpement"
 
 def isfile(path): # pragma: no cover
@@ -138,8 +138,8 @@ def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):
     :param delete_sink_node: (boolean) True->We remove the last node of a path
     :return: (nx.DiGraph) A directed graph object
     """
+    # chemin = ["AT","TC","CT","TT"] -> ATCTT
     pass
-
 
 def select_best_path(graph, path_list, path_length, weight_avg_list, 
                      delete_entry_node=False, delete_sink_node=False):
@@ -154,6 +154,8 @@ def select_best_path(graph, path_list, path_length, weight_avg_list,
     :return: (nx.DiGraph) A directed graph object
     """
     pass
+
+
 
 def path_average_weight(graph, path):
     """Compute the weight of a path
@@ -248,10 +250,11 @@ def save_contigs(contigs_list, output_file):
     :param contig_list: (list) List of [contiguous sequence and their length]
     :param output_file: (str) Path to the output file
     """
-    #file = open(output_file, "w")
-   # for i in contigs_list:
-#        file.write(textwrap.fill(f">contig_{i} len = {contigs_list[1]}\n{contigs_list[0]}", width=80))
-    pass
+    with open(output_file, "w") as file :
+        for i in range(len(contigs_list)):
+            file.write(f">contig_{i} len={contigs_list[i][1]}\n")
+            file.write(f"{textwrap.fill(contigs_list[i][0], width=80)}\n")
+
 
 def draw_graph(graph, graphimg_file): # pragma: no cover
     """Draw the graph
